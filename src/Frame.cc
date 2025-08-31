@@ -188,6 +188,7 @@ Frame::Frame(const cv::Mat &imLeft,
   // Frame ID
   mnId = nNextId++;
 
+  // std::cout << "New Frame, ID: " << mnId << std::endl;
   // Save RGB image for Gaussian Mapping
   this->imgLeftRGB = imRGB.clone();
   this->imgAuxiliary = imRightRGB.clone();
@@ -323,7 +324,7 @@ Frame::Frame(const cv::Mat &imGray,
       mbHasVelocity(false) {
   // Frame ID
   mnId = nNextId++;
-
+  // std::cout << "New Frame, ID: " << mnId << std::endl;
   // Save RGB image for Gaussian Mapping
   this->imgLeftRGB = imRGB.clone();
   this->imgAuxiliary = imDepth.clone();
@@ -444,7 +445,7 @@ Frame::Frame(const cv::Mat &imGray,
       mbHasVelocity(false) {
   // Frame ID
   mnId = nNextId++;
-
+  // std::cout << "New Frame, ID: " << mnId << std::endl;
   // Save RGB image for Gaussian Mapping
   this->imgLeftRGB = imRGB.clone();
 
@@ -1108,9 +1109,7 @@ void Frame::ComputeStereoFromRGBD(const cv::Mat &imDepth) {
   }
 }
 
-bool Frame::UnprojectStereo(const int &i,
-                            Eigen::Vector3f &x3D,
-                            Eigen::Vector3f &colorRGB) {
+bool Frame::UnprojectStereo(const int &i, Eigen::Vector3f &x3D) {
   const float z = mvDepth[i];
   if (z > 0) {
     const float u = mvKeysUn[i].pt.x;
@@ -1119,16 +1118,6 @@ bool Frame::UnprojectStereo(const int &i,
     const float y = (v - cy) * z * invfy;
     Eigen::Vector3f x3Dc(x, y, z);
     x3D = mRwc * x3Dc + mOw;
-
-    const float uOri = mvKeys[i].pt.x;
-    const float vOri = mvKeys[i].pt.y;
-    const int ui = static_cast<int>(std::round(uOri));
-    const int vi = static_cast<int>(std::round(vOri));
-    const cv::Vec3f &color = this->imgLeftRGB.at<cv::Vec3f>(vi, ui);
-    colorRGB.x() = color[0];
-    colorRGB.y() = color[1];
-    colorRGB.z() = color[2];
-
     return true;
   } else
     return false;

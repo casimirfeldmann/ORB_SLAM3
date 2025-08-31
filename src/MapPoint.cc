@@ -50,10 +50,7 @@ MapPoint::MapPoint()
   mpReplaced = static_cast<MapPoint*>(NULL);
 }
 
-MapPoint::MapPoint(const Eigen::Vector3f& Pos,
-                   const Eigen::Vector3f& Color,
-                   KeyFrame* pRefKF,
-                   Map* pMap)
+MapPoint::MapPoint(const Eigen::Vector3f& Pos, KeyFrame* pRefKF, Map* pMap)
     : mnFirstKFid(pRefKF->mnId),
       mnFirstFrame(pRefKF->mnFrameId),
       nObs(0),
@@ -76,8 +73,6 @@ MapPoint::MapPoint(const Eigen::Vector3f& Pos,
       mnOriginMapId(pMap->GetId()),
       mbRetrived(false) {
   SetWorldPos(Pos);
-
-  SetColorRGB(Color);
 
   mNormalVector.setZero();
 
@@ -197,13 +192,6 @@ Eigen::Vector3f MapPoint::GetWorldPos() {
   unique_lock<mutex> lock(mMutexPos);
   return mWorldPos;
 }
-
-void MapPoint::SetColorRGB(const Eigen::Vector3f& Color) {
-  unique_lock<mutex> lock2(mGlobalMutex);
-  mColorRGB = Color;
-}
-
-Eigen::Vector3f MapPoint::GetColorRGB() { return mColorRGB; }
 
 void MapPoint::setRetrived(const bool retrived) {
   unique_lock<mutex> lock(mMutexRetrival);
