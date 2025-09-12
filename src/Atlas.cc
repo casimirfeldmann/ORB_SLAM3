@@ -386,21 +386,22 @@ void Atlas::clearMappingOperation() {
 bool Atlas::ReleaseKeyFrameImages(unsigned long keyFrameId) {
   // Get all keyframes from the current map
   std::vector<KeyFrame*> vpKFs = GetAllKeyFrames();
-  
+
   // Search for the keyframe with the specified ID
   for (KeyFrame* pKF : vpKFs) {
     if (pKF && pKF->mnId == keyFrameId) {
       // Release the images
       pKF->imgLeftRGB.release();
       pKF->imgAuxiliary.release();
-      
-      std::cout << "Released images from KeyFrame " << keyFrameId << std::endl;
-      return true; // Successfully found and released
+
+      // std::cout << "Released images from KeyFrame " << keyFrameId <<
+      // std::endl;
+      return true;  // Successfully found and released
     }
   }
-  
+
   std::cout << "KeyFrame with ID " << keyFrameId << " not found" << std::endl;
-  return false; // KeyFrame not found
+  return false;  // KeyFrame not found
 }
 
 }  // namespace ORB_SLAM3
