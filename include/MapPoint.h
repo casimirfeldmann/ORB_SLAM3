@@ -102,10 +102,7 @@ class MapPoint {
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
   MapPoint();
 
-  MapPoint(const Eigen::Vector3f& Pos,
-           const Eigen::Vector3f& Color,
-           KeyFrame* pRefKF,
-           Map* pMap);
+  MapPoint(const Eigen::Vector3f& Pos, KeyFrame* pRefKF, Map* pMap);
   MapPoint(const double invDepth,
            cv::Point2f uv_init,
            KeyFrame* pRefKF,
@@ -118,9 +115,6 @@ class MapPoint {
 
   void SetWorldPos(const Eigen::Vector3f& Pos);
   Eigen::Vector3f GetWorldPos();
-
-  void SetColorRGB(const Eigen::Vector3f& Color);
-  Eigen::Vector3f GetColorRGB();
 
   void setRetrived(const bool retrived);
   bool isRetrived();
@@ -219,11 +213,6 @@ class MapPoint {
  protected:
   // Position in absolute coordinates
   Eigen::Vector3f mWorldPos;
-
-  // RGB Color from the first observation
-  // -- Useless for ORB-SLAM3 but useful in Gaussian Mapping, so supposed to be
-  // constant since created
-  Eigen::Vector3f mColorRGB;
 
   // Retrival flag, ever retirved by Gaussian Mapping
   bool mbRetrived;

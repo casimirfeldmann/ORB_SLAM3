@@ -78,7 +78,6 @@ class MappingOperation {
     mvAssociatedKeyFrames.reserve(nKFs);
     int length = nMPs * 3;
     std::get<0>(mvAssociatedMapPoints).reserve(length);
-    std::get<1>(mvAssociatedMapPoints).reserve(length);
   }
 
   MappingOperation(const MappingOperation& opr)
@@ -98,8 +97,16 @@ class MappingOperation {
     pKF->GetKeypointInfo(pixels, pointsLocal);
     mvAssociatedKeyFrames.emplace_back(std::make_tuple(
         pKF->mnId, pKF->mpCamera->GetId(), pKF->GetPose(),
-        pKF->imgLeftRGB.clone(), isLoopClosureKF, pKF->imgAuxiliary, pixels,
-        pointsLocal, pKF->mNameFile));
+        pKF->imgLeftRGB.clone(), isLoopClosureKF, pKF->imgAuxiliary.clone(),
+        pixels, pointsLocal, pKF->mNameFile));
+
+    // std::cout << "About to clear images from processed KeyFrame " <<
+    // pKF->mnId
+    //           << std::endl;
+    // pKF->imgLeftRGB.release();
+    // pKF->imgAuxiliary.release();
+    // std::cout << "Cleared images from processed KeyFrame " << pKF->mnId
+    //           << std::endl;
   }
 
   std::vector<std::tuple<unsigned long,
@@ -118,7 +125,6 @@ class MappingOperation {
   void reserveMapPoints(const std::size_t nMPs) {
     int length = nMPs * 3;
     std::get<0>(mvAssociatedMapPoints).reserve(length);
-    std::get<1>(mvAssociatedMapPoints).reserve(length);
   }
 
   void addMapPoint(MapPoint* pMP) {
@@ -127,10 +133,6 @@ class MappingOperation {
     std::get<0>(mvAssociatedMapPoints).emplace_back(pt.x());
     std::get<0>(mvAssociatedMapPoints).emplace_back(pt.y());
     std::get<0>(mvAssociatedMapPoints).emplace_back(pt.z());
-    auto color = pMP->GetColorRGB();
-    std::get<1>(mvAssociatedMapPoints).emplace_back(color.x());
-    std::get<1>(mvAssociatedMapPoints).emplace_back(color.y());
-    std::get<1>(mvAssociatedMapPoints).emplace_back(color.z());
   }
 
   std::tuple<std::vector<float /*pos*/>, std::vector<float /*color*/>>&
@@ -234,6 +236,9 @@ class Atlas {
   void clearMap();
 
   void clearAtlas();
+
+  // Release images from a specific keyframe by ID
+  bool ReleaseKeyFrameImages(unsigned long keyFrameId);
 
   Map* GetCurrentMap();
 

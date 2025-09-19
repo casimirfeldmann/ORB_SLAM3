@@ -780,9 +780,7 @@ bool KeyFrame::IsInImage(const float &x, const float &y) const {
   return (x >= mnMinX && x < mnMaxX && y >= mnMinY && y < mnMaxY);
 }
 
-bool KeyFrame::UnprojectStereo(int i,
-                               Eigen::Vector3f &x3D,
-                               Eigen::Vector3f &colorRGB) {
+bool KeyFrame::UnprojectStereo(int i, Eigen::Vector3f &x3D) {
   const float z = mvDepth[i];
   if (z > 0) {
     const float u = mvKeys[i].pt.x;
@@ -790,13 +788,6 @@ bool KeyFrame::UnprojectStereo(int i,
     const float x = (u - cx) * z * invfx;
     const float y = (v - cy) * z * invfy;
     Eigen::Vector3f x3Dc(x, y, z);
-
-    const int ui = static_cast<int>(std::round(u));
-    const int vi = static_cast<int>(std::round(v));
-    const cv::Vec3f &color = this->imgLeftRGB.at<cv::Vec3f>(vi, ui);
-    colorRGB.x() = color[0];
-    colorRGB.y() = color[1];
-    colorRGB.z() = color[2];
 
     unique_lock<mutex> lock(mMutexPose);
     x3D = mRwc * x3Dc + mTwc.translation();

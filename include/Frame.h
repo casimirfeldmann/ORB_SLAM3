@@ -160,9 +160,7 @@ class Frame {
 
   // Backprojects a keypoint (if stereo/depth info available) into 3D world
   // coordinates.
-  bool UnprojectStereo(const int &i,
-                       Eigen::Vector3f &x3D,
-                       Eigen::Vector3f &colorRGB);
+  bool UnprojectStereo(const int &i, Eigen::Vector3f &x3D);
 
   ConstraintPoseImu *mpcpi;
 

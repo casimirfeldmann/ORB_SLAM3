@@ -258,7 +258,7 @@ class KeyFrame {
                                         const float& y,
                                         const float& r,
                                         const bool bRight = false) const;
-  bool UnprojectStereo(int i, Eigen::Vector3f& x3D, Eigen::Vector3f& colorRGB);
+  bool UnprojectStereo(int i, Eigen::Vector3f& x3D);
 
   void GetKeypointInfo(std::vector<float>& pixelsUndist,
                        std::vector<float>& pointsLocal);

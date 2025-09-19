@@ -2320,13 +2320,14 @@ void Tracking::StereoInitialization() {
 
     // Create MapPoints and asscoiate to KeyFrame
     if (!mpCamera2) {
+      // std::cout << "Calling unproject , stereoinit" << std::endl;
       for (int i = 0; i < mCurrentFrame.N; i++) {
         float z = mCurrentFrame.mvDepth[i];
         if (z > 0) {
-          Eigen::Vector3f x3D, colorRGB;
-          mCurrentFrame.UnprojectStereo(i, x3D, colorRGB);
+          Eigen::Vector3f x3D;
+          mCurrentFrame.UnprojectStereo(i, x3D);
           MapPoint* pNewMP =
-              new MapPoint(x3D, colorRGB, pKFini, mpAtlas->GetCurrentMap());
+              new MapPoint(x3D, pKFini, mpAtlas->GetCurrentMap());
           pNewMP->AddObservation(pKFini, i);
           pKFini->AddMapPoint(pNewMP, i);
           pNewMP->ComputeDistinctiveDescriptors();
@@ -2342,8 +2343,8 @@ void Tracking::StereoInitialization() {
         if (rightIndex != -1) {
           Eigen::Vector3f x3D = mCurrentFrame.mvStereo3Dpoints[i];
 
-          MapPoint* pNewMP = new MapPoint(x3D, Eigen::Vector3f(.0f, .0f, .0f),
-                                          pKFini, mpAtlas->GetCurrentMap());
+          MapPoint* pNewMP =
+              new MapPoint(x3D, pKFini, mpAtlas->GetCurrentMap());
 
           pNewMP->AddObservation(pKFini, i);
           pNewMP->AddObservation(pKFini, rightIndex + mCurrentFrame.Nleft);
@@ -2440,25 +2441,6 @@ void Tracking::MonocularInitialization() {
     if (mpCamera->ReconstructWithTwoViews(mInitialFrame.mvKeysUn,
                                           mCurrentFrame.mvKeysUn, mvIniMatches,
                                           Tcw, mvIniP3D, vbTriangulated)) {
-      mvIniColorRGB.resize(mvIniMatches.size());
-      for (size_t i = 0, iend = mvIniMatches.size(); i < iend; i++) {
-        if (mvIniMatches[i] >= 0 && !vbTriangulated[i]) {
-          mvIniMatches[i] = -1;
-          nmatches--;
-        }
-        // Get color from mInitialFrame
-        if (mvIniMatches[i] >= 0) {
-          const int u =
-              static_cast<int>(std::round(mInitialFrame.mvKeys[i].pt.x));
-          const int v =
-              static_cast<int>(std::round(mInitialFrame.mvKeys[i].pt.y));
-          const auto& color = mInitialFrame.imgLeftRGB.at<cv::Vec3f>(v, u);
-          mvIniColorRGB[i].x() = color[0];
-          mvIniColorRGB[i].y() = color[1];
-          mvIniColorRGB[i].z() = color[2];
-        }
-      }
-
       // Set Frame Poses
       mInitialFrame.SetPose(Sophus::SE3f());
       mCurrentFrame.SetPose(Tcw);
@@ -2491,8 +2473,7 @@ void Tracking::CreateInitialMapMonocular() {
     // Create MapPoint.
     Eigen::Vector3f worldPos;
     worldPos << mvIniP3D[i].x, mvIniP3D[i].y, mvIniP3D[i].z;
-    MapPoint* pMP = new MapPoint(worldPos, mvIniColorRGB[i], pKFcur,
-                                 mpAtlas->GetCurrentMap());
+    MapPoint* pMP = new MapPoint(worldPos, pKFcur, mpAtlas->GetCurrentMap());
 
     pKFini->AddMapPoint(pMP, i);
     pKFcur->AddMapPoint(pMP, mvIniMatches[i]);
@@ -2757,12 +2738,12 @@ void Tracking::UpdateLastFrame() {
       bCreateNew = true;
 
     if (bCreateNew) {
-      Eigen::Vector3f x3D,
-          colorRGB;  // colorRGB: actually not used because pNewMP is a
-                     // temporary MapPoint, which will not be added to the Map
+      Eigen::Vector3f x3D;
+      // temporary MapPoint, which will not be added to the Map
 
+      // std::cout << "Calling unproject stereo updatelastframe" << std::endl;
       if (mLastFrame.Nleft == -1) {
-        mLastFrame.UnprojectStereo(i, x3D, colorRGB);
+        mLastFrame.UnprojectStereo(i, x3D);
       } else {
         x3D = mLastFrame.UnprojectStereoFishEye(i);
       }
@@ -3192,16 +3173,16 @@ void Tracking::CreateNewKeyFrame() {
         }
 
         if (bCreateNew) {
-          Eigen::Vector3f x3D, colorRGB;
-
+          Eigen::Vector3f x3D;
+          // std::cout << "Calling unproject stereo createnewkeyframe"
+          //           << std::endl;
           if (mCurrentFrame.Nleft == -1) {
-            mCurrentFrame.UnprojectStereo(i, x3D, colorRGB);
+            mCurrentFrame.UnprojectStereo(i, x3D);
           } else {
             x3D = mCurrentFrame.UnprojectStereoFishEye(i);
           }
 
-          MapPoint* pNewMP =
-              new MapPoint(x3D, colorRGB, pKF, mpAtlas->GetCurrentMap());
+          MapPoint* pNewMP = new MapPoint(x3D, pKF, mpAtlas->GetCurrentMap());
           pNewMP->AddObservation(pKF, i);
 
           // Check if it is a stereo observation in order to not
